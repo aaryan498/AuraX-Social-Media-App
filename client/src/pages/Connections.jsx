@@ -10,7 +10,7 @@ import {
 
 const Connections = () => {
 
-  const [currentTab, setCurrentTab] = useState('followers')
+  const [currentTab, setCurrentTab] = useState('Followers')
 
   const navigate = useNavigate()
 
@@ -56,8 +56,8 @@ const Connections = () => {
 
         {/* Connections */}
         <div className='flex flex-wrap gap-6 mt-6'>
-          {dataArray.find(()=>item.label === currentTab).value.map((user)=>(
-            <div ></div>
+          {dataArray.find((item)=>item.label === currentTab).value.map((user)=>(
+            <div></div>
           ))}
         </div>
 
