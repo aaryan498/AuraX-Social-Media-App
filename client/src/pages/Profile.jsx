@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import Loading from '../components/Loading'
+import { dummyUserData, dummyPostsData } from '../assets/assets'
 
 const Profile = () => {
 
