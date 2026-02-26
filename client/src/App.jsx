@@ -13,6 +13,7 @@ import Layout from './pages/Layout'
 import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import axios from 'axios'
+import { assets } from './assets/assets'
 
 const App = () => {
   
@@ -21,11 +22,68 @@ const App = () => {
 
   
 
-  useEffect(()=>{
-    if(user){
-      getToken().then((token)=>console.log(token))
-    }
-  },[user])
+  // useEffect(()=>{
+  //   if(user){
+  //     getToken().then((token)=>console.log(token))
+  //   }
+  // },[user])
+
+
+  
+
+// useEffect(() => {
+//   const laura = async () => {
+//     console.log("🔥 useEffect started");
+
+//     try {
+//       // 1️⃣ Check user
+//       if (!user) {
+//         console.log("❌ User is not loaded yet");
+//         return;
+//       }
+
+//       console.log("✅ User loaded:", user.id);
+
+//       // 2️⃣ Get token
+//       console.log("⏳ Fetching token...");
+//       const token = await getToken();
+
+//       if (!token) {
+//         console.log("❌ Token is null or undefined");
+//         return;
+//       }
+
+//       console.log("✅ Token received (first 20 chars):", token.substring(0, 20));
+
+//       // 3️⃣ Prepare request body
+//       const requestBody = {
+//         username: "aaryan1981",
+//         bio: "Mai tera baap hu",
+//         location: "India",
+//         full_name: "Arpita Tiwari",
+//         profile: "https://images.pexels.com/photos/170811/pexels-photo-170811.jpeg",
+//         cover: "https://images.pexels.com/photos/1595385/pexels-photo-1595385.jpeg",
+//       };
+
+//       const response = await axios.post(
+//         "http://localhost:4000/api/user/update",
+//         requestBody,
+//         {
+//           headers: {
+//             Authorization: `Bearer ${token}`,
+//           },
+//         }
+//       );
+
+//       console.log(response.data)
+
+//     } catch (error) {
+//       console.log(error.message);
+//     }
+//   };
+
+//   laura();
+// }, [user]);
 
 
   return (
