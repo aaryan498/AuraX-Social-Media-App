@@ -118,30 +118,30 @@ const App = () => {
 
 
   // },[user])
-  useEffect(()=>{
+  // useEffect(()=>{
 
-    try {
+  //   try {
       
-      const sendpostreq = async()=>{
-        const token = await getToken();
-        const response = await axios.get(
-          "http://localhost:4000/api/post/feed",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        console.log(response.data)
+  //     const sendpostreq = async()=>{
+  //       const token = await getToken();
+  //       const response = await axios.get(
+  //         "http://localhost:4000/api/post/feed",
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+  //       console.log(response.data)
         
-      }
-      sendpostreq()
-    } catch (error) {
-      console.log(error.message);
-    }
+  //     }
+  //     sendpostreq()
+  //   } catch (error) {
+  //     console.log(error.message);
+  //   }
 
 
-  },[user])
+  // },[user])
 
 
   return (
