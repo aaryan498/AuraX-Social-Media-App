@@ -9,9 +9,9 @@ const userSchema = new mongoose.Schema({
     profile_picture: {type: String, default: ''},
     cover_photo: {type: String, default: ''},
     location: {type: String, default: ''},
-    followers: {type: String, ref: 'userModel'},
-    following: {type: String, ref: 'userModel'},
-    connections: {type: String, ref: 'userModel'},
+    followers: [{type: String, ref: 'userModel', default: []}],
+    following: [{type: String, ref: 'userModel', default: []}],
+    connections: [{type: String, ref: 'userModel', default: []}],
 }, {timestamps: true, minimize: false})
 
 const User = mongoose.model('userModel', userSchema)

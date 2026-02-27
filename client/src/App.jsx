@@ -86,6 +86,64 @@ const App = () => {
 // }, [user]);
 
 
+
+// Send Post
+
+  // useEffect(()=>{
+
+  //   try {
+      
+  //     const sendpostreq = async()=>{
+  //       const token = await getToken();
+  //       const requestBody = {
+  //         content: "Hi, This is my post on Vanilla...!",
+  //         post_type: "text",
+  //       };
+  //       const response = await axios.post(
+  //         "http://localhost:4000/api/post/add",
+  //         requestBody,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+  //       console.log(response.data)
+        
+  //     }
+  //     sendpostreq()
+  //   } catch (error) {
+  //     console.log(error.message);
+  //   }
+
+
+  // },[user])
+  useEffect(()=>{
+
+    try {
+      
+      const sendpostreq = async()=>{
+        const token = await getToken();
+        const response = await axios.get(
+          "http://localhost:4000/api/post/feed",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        console.log(response.data)
+        
+      }
+      sendpostreq()
+    } catch (error) {
+      console.log(error.message);
+    }
+
+
+  },[user])
+
+
   return (
     <div>
       <Toaster/>
