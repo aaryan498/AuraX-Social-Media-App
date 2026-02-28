@@ -7,11 +7,17 @@ import PostCard from '../components/PostCard'
 import moment from 'moment'
 import { Link } from 'react-router-dom'
 import ProfileModal from '../components/ProfileModal'
+import { useAuth } from '@clerk/clerk-react'
+import toast from 'react-hot-toast'
+import { useSelector } from 'react-redux'
+import api from '../api/axios'
 
 const Profile = () => {
 
+  const currentUser = useSelector((state)=>state.user.value);
 
 
+  const { getToken } = useAuth();
   const { profileId } = useParams()
   const [user, setuser] = useState(null)
   const [posts, setposts] = useState([])
@@ -20,14 +26,33 @@ const Profile = () => {
 
 
 
-  const fetchUser = async () => {
-    setuser(dummyUserData)
-    setposts(dummyPostsData)
+  const fetchUser = async (profileId) => {
+    const token = await getToken()
+    try {
+
+      const { data } = await api.post('/api/user/profiles', {profileId}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      if(data.success){
+        setuser(data.profile)
+        setposts(data.posts)
+      } else{
+        toast.error(data.message)
+      }
+      
+    } catch (error) {
+      toast.error(error.message)
+    }
+    
   }
 
   useEffect(()=>{
-    fetchUser()
-  },[])
+    if(profileId){
+      fetchUser(profileId)
+    } else{
+      fetchUser(currentUser._id)
+    }
+  },[profileId, currentUser])
 
 
 

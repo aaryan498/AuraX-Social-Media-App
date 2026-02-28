@@ -14,19 +14,25 @@ import { Toaster } from 'react-hot-toast'
 import { useEffect } from 'react'
 import axios from 'axios'
 import { assets } from './assets/assets'
+import { useDispatch } from 'react-redux'
+import { fetchUser } from './features/user/userSlice.js'
 
 const App = () => {
   
   const { user } = useUser()
   const {getToken} = useAuth()
 
-  
+  const dispatch = useDispatch();
 
-  // useEffect(()=>{
-  //   if(user){
-  //     getToken().then((token)=>console.log(token))
-  //   }
-  // },[user])
+  useEffect(()=>{
+    const fetchData = async()=>{
+      if(user){
+        const token = await getToken()
+        dispatch(fetchUser(token))
+      }
+    }
+    fetchData()
+  },[user, getToken, dispatch])
 
 
   
