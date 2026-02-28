@@ -29,7 +29,7 @@ const CreatePost = () => {
 
     try {
       const token = await getToken()
-      const formData = new FormData()
+      let formData = new FormData()
       formData.append('content', content)
       formData.append('post_type', postType)
       images.map((image)=>{

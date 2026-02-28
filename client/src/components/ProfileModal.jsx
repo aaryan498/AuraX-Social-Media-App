@@ -27,7 +27,7 @@ const ProfileModal = ({setshowEdit}) => {
 
         try {
 
-            const userData = new FormData()
+            let userData = new FormData()
             const {full_name, username, bio, location, profile_picture, cover_photo} = editForm
 
             userData.append('username', username)
