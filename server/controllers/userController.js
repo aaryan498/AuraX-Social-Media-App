@@ -265,7 +265,7 @@ export const acceptConnectionRequest = async(req, res)=>{
     try {
 
         const { userId } = req.auth();
-        const { id } = req.body();
+        const { id } = req.body;
 
         const connection = await Connection.findOne({from_user_id: id, to_user_id: userId})
 
