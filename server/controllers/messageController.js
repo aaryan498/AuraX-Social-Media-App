@@ -3,7 +3,7 @@ import imagekit from '../configs/imagekit.js';
 import Message from '../models/messageModel.js';
 
 // Create an empty object to store SS Event connections
-const connections = [];
+const connections = {};
 
 // Controller function for the SSE endpoint
 export const sseController = (req, res)=>{
@@ -15,6 +15,7 @@ export const sseController = (req, res)=>{
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     res.setHeader('Access-Control-Allow-Origin', '*');
+    res.flushHeaders();
 
     // Add the client's response object to the connection object
     connections[userId]=res;
