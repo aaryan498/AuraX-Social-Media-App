@@ -16,6 +16,7 @@ import axios from 'axios'
 import { assets } from './assets/assets'
 import { useDispatch } from 'react-redux'
 import { fetchUser } from './features/user/userSlice.js'
+import { fetchConnections } from './features/connections/connectionsSlice.js'
 
 const App = () => {
   
@@ -29,6 +30,7 @@ const App = () => {
       if(user){
         const token = await getToken()
         dispatch(fetchUser(token))
+        dispatch(fetchConnections(token))
       }
     }
     fetchData()
