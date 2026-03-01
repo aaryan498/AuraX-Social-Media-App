@@ -1,5 +1,5 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import React, { useRef } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Login from './pages/Login'
 import Feed from './pages/Feed'
 import Messages from './pages/Messages'
@@ -17,11 +17,14 @@ import { assets } from './assets/assets'
 import { useDispatch } from 'react-redux'
 import { fetchUser } from './features/user/userSlice.js'
 import { fetchConnections } from './features/connections/connectionsSlice.js'
+import { addMessages } from './features/messages/messagesSlice.js'
 
 const App = () => {
   
   const { user } = useUser()
   const {getToken} = useAuth()
+  const { pathname } = useLocation()
+  const pathnameRef = useRef(pathname)
 
   const dispatch = useDispatch();
 
@@ -37,6 +40,28 @@ const App = () => {
   },[user, getToken, dispatch])
 
 
+  useEffect(()=>{
+    pathnameRef.current = pathname
+  },[pathname])
+
+  useEffect(()=>{
+    if(user){
+      const eventSource = new EventSource(import.meta.env.VITE_BASE_URL + '/api/message/' + user.id)
+
+      eventSource.onmessage = (event)=>{
+        const message = JSON.parse(event.data)
+
+        if(pathnameRef.current === ('/messages/' + message.from_user_id._id)){
+          dispatch(addMessages(message))
+        } else{
+
+        }
+      }
+      return ()=>{
+        eventSource.close()
+      }
+    }
+  },[user, dispatch])
   
 
 // useEffect(() => {
