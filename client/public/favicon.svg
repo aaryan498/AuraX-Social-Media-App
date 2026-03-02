@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 90">
+  <defs>
+    <linearGradient gradientTransform="rotate(25)" id="fe73bbac-e430-4bd6-8c6d-41fbe943a47d" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color: rgb(71, 255, 9); stop-opacity: 1;"></stop>
+      <stop offset="100%" style="stop-color: rgb(228, 45, 245); stop-opacity: 1;"></stop>
+    </linearGradient>
+  </defs>
+
+  <g transform="matrix(3.75,0,0,3.75,0,0)" fill="url(#fe73bbac-e430-4bd6-8c6d-41fbe943a47d)">
+    <path d="M9 7a.998.998 0 011.515-.857l5 3a1 1 0 010 1.714l-5 3a.994.994 0 01-1.008.013A.998.998 0 019 13V7zm15 11V3.105A3.11 3.11 0 0020.895 0H3.105A3.11 3.11 0 000 3.105V18h24zM0 20v.895A3.11 3.11 0 003.105 24h17.79A3.11 3.11 0 0024 20.895V20H0z"></path>
+  </g>
+</svg>

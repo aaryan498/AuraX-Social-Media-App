@@ -18,13 +18,14 @@ const Login = () => {
                     <img src={assets.group_users} className='h-8 md:h-10' alt="" />
                     <div >
                         <div className='flex'>
-                            {Array(5).fill(0).map((_, i)=>(<Star className='size-4 md:size-4.5 text-transparent fill-orange-600' key={i}/>))}                            
+                            {Array(4).fill(0).map((_, i)=>(<Star className='size-4 md:size-4.5 text-transparent fill-orange-500' key={i}/>))}                            
+                            {Array(1).fill(0).map((_, i)=>(<Star className='size-4 md:size-4.5 text-transparent fill-gray-400' key={i}/>))}                            
                         </div>
-                        <p>Used by 1K+ developers</p>
+                        <p className='text-gray-400'>Used by 1K+ developers</p>
                     </div>
                 </div>
-                <h1 className='text-3xl md:text-6xl md:pb-2 font-bold bg-gradient-to-r from-indigo-950 to-indigo-800 bg-clip-text text-transparent'>More than just friends truly connect.</h1>
-                <p className='text-xl md:text-3xl text-indigo-900 max-w-72 md:max-w-md'>connect with global community on Aura-X.</p>
+                <h1 className='text-3xl md:text-6xl md:pb-2 font-bold bg-gradient-to-r from-green-500 to-indigo-800 bg-clip-text text-transparent'>More than just friends truly connect.</h1>
+                <p className='text-xl md:text-3xl bg-gradient-to-r from-purple-700 to-yellow-400 bg-clip-text text-transparent max-w-72 md:max-w-md'>Connect with global community on Vanilla.</p>
             </div>
             <span className='md:h-10'></span>
         </div>

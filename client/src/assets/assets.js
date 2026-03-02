@@ -9,8 +9,6 @@ import sponsored_img from './sponsored_img.png'
 
 
 
-
-
 export const assets = {
     logo,
     sample_cover,
