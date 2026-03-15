@@ -58,7 +58,7 @@ const UserCard = ({user}) => {
         <div className='text-center'>
             <img src={user.profile_picture} className='rounded-full w-16 shadow-md mx-auto' alt="" />
             <p className='mt-4 font-semibold'>{user.full_name}</p>
-            {user.username && <p className='text-gray-500 font-light'>@{user.username}</p>}
+            {user.username && <p className='text-purple-600 font-light'>@{user.username}</p>}
             {user.bio && <p className='text-gray-600 mt-2 text-center text-sm px-4'>{user.bio}</p>}
         </div>
 
@@ -72,7 +72,7 @@ const UserCard = ({user}) => {
         </div>
 
         <div className='flex mt-4 gap-2'>
-            <button disabled={currentUser?.following.includes(user._id)} onClick={handleFollow} className='w-full py-2 rounded-md flex justify-center items-center gap-2 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 active:scale-95 transition text-white cursor-pointer'>
+            <button disabled={currentUser?.following.includes(user._id)} onClick={handleFollow} className='w-full py-2 rounded-md flex justify-center items-center gap-2 bg-gradient-to-r from-green-600 to-purple-700 hover:from-green-700 hover:to-purple-800 active:scale-95 transition text-white cursor-pointer'>
                 <UserPlus className='w-4 h-4'/> {currentUser?.following.includes(user._id) ? 'Following' : 'Follow'}
             </button>
 

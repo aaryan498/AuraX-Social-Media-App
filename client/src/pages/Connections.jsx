@@ -104,11 +104,11 @@ const Connections = () => {
               <img src={user.profile_picture} className='rounded-full w-12 h-12 shadow-md mx-auto' alt="" />
               <div className='flex-1'>
                 <p className='font-medium text-slate-700'>{user.full_name}</p>
-                <p className='text-slate-500'>@{user.username}</p>
+                <p className='text-purple-600'>@{user.username}</p>
                 <p className='text-sm text-gray-600'>{user.bio.slice(0,30)}...</p>
                 <div className='flex max-sm:flex-col gap-2 mt-4'>
                   {
-                    <button onClick={()=>navigate(`/profile/${user._id}`)} className='w-full text-white p-2 text-sm rounded bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 active:scale-95 transition cursor-pointer'>View Profile</button>
+                    <button onClick={()=>navigate(`/profile/${user._id}`)} className='w-full text-white p-2 text-sm rounded bg-gradient-to-r from-green-600 to-purple-700 hover:from-green-700 hover:to-purple-800 active:scale-95 transition cursor-pointer'>View Profile</button>
                   }
                   {
                     currentTab === 'Following' && (

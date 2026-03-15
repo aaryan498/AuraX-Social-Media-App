@@ -27,7 +27,7 @@ const SideBar = ({ sideBarOpen, setsideBarOpen }) => {
 
             <MenuItems setsideBarOpen={setsideBarOpen}/>
 
-            <Link to='/create-post' className='flex items-center justify-center gap-2 py-2.5 mt-6 mx-6 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-700 hover:to-indigo-800 active:scale-95 transition text-white cursor-pointer'>
+            <Link to='/create-post' className='flex items-center justify-center gap-2 py-2.5 mt-6 mx-6 rounded-lg bg-gradient-to-r from-green-600 to-purple-700 hover:from-green-700 hover:to-purple-800 active:scale-95 transition text-white hover:text-gray-200 cursor-pointer'>
                 <CirclePlus className='w-5 h-5'/>
                 Create Post
             </Link>
@@ -39,7 +39,7 @@ const SideBar = ({ sideBarOpen, setsideBarOpen }) => {
                 <UserButton/>
                 <div>
                     <h1 className='text-sm font-medium'>{user.full_name}</h1>
-                    <p className='text-xs text-gray-500'>@{user.username}</p>
+                    <p className='text-xs text-purple-500'>@{user.username}</p>
                 </div>
             </div>
             <LogOut onClick={signOut} className='w-4.5 text-gray-400 hover:text-gray-700 transition cursor-pointer'/>

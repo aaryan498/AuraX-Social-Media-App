@@ -28,7 +28,7 @@ const Messages = () => {
                   <img src={user.profile_picture} className='rounded-full size-12 mx-auto' alt="" />
                   <div className='flex-1'>
                     <p className='font-medium text-slate-700'>{user.full_name}</p>
-                    <p className='text-slate-500'>@{user.username}</p>
+                    <p className='text-purple-600'>@{user.username}</p>
                     <p className='text-sm text-gray-600'>{user.bio}</p>
                   </div>
 

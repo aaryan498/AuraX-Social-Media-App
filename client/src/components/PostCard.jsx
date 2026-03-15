@@ -52,7 +52,10 @@ const PostCard = ({post}) => {
                     <span>{post.user.full_name}</span>
                     <BadgeCheck className='w-4 h-4 text-blue-500'/>
                 </div>
-                <div className='text-gray-500 text-sm'>@{post.user.username} • {moment(post.createdAt).fromNow()}</div>
+                <div className='flex gap-1'>
+                    <div className='text-purple-500 text-sm'>@{post.user.username} </div>
+                    <div className='text-gray-500 text-sm'> • Posted {moment(post.createdAt).fromNow()}</div>
+                </div>
             </div>
         </div>
 
@@ -76,11 +79,11 @@ const PostCard = ({post}) => {
             </div>
             <div className='flex items-center gap-1'>
                 <MessageCircle className='w-4 h-4'/>
-                <span>{12}</span>
+                <span></span>
             </div>
             <div className='flex items-center gap-1'>
                 <Share2 className='w-4 h-4'/>
-                <span>{7}</span>
+                <span></span>
             </div>
         </div>
         

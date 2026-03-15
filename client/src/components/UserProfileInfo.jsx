@@ -16,7 +16,7 @@ const UserProfileInfo = ({user, posts, profileId, setShowEdit}) => {
                             <h1 className='text-2xl font-bold text-gray-900'>{user.full_name}</h1>
                             <Verified className='w-6 h-6 text-blue-500'/>
                         </div>
-                        <p className='text-gray-600'>{user.username ? `@${user.username}` : 'Add a Username'}</p>
+                        <p className='text-purple-600 cursor-pointer'>{user.username ? `@${user.username}` : 'Add a Username'}</p>
                     </div>
                     {/* If user is not on others profile that means he is opening his own profile so we will give edit button. */}
                     {
@@ -31,11 +31,11 @@ const UserProfileInfo = ({user, posts, profileId, setShowEdit}) => {
 
                 <div className='flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500 mt-4'>
                     <span className='flex items-center gap-1.5'>
-                        <MapPin className='w-4 h-4'/>
+                        <MapPin color='green' className='w-4 h-4'/>
                         {user.location ? user.location : 'Add Location'}
                     </span>
                     <span className='flex items-center gap-1.5'>
-                        <Calendar className='w-4 h-4'/>
+                        <Calendar color='green' className='w-4 h-4'/>
                         Joined <span className='font-medium'>{moment(user.createdAt).fromNow()}</span>
                     </span>
                 </div>
