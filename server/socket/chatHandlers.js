@@ -56,4 +56,12 @@ export const registerChatHandlers = (io, socket) => {
         }
     })
 
+    socket.on('typing:start', ({ to_user_id }) => {
+        io.to(to_user_id).emit('typing:update', { from_user_id: socket.userId, isTyping: true })
+    })
+
+    socket.on('typing:stop', ({ to_user_id }) => {
+        io.to(to_user_id).emit('typing:update', { from_user_id: socket.userId, isTyping: false })
+    })
+
 }

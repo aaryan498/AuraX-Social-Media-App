@@ -12,6 +12,7 @@ import toast from 'react-hot-toast'
 const ChatBox = () => {
 
   const { messages } = useSelector((state)=>state.messages)
+  const onlineUserIds = useSelector((state)=>state.presence.onlineUserIds)
   const { userId } = useParams()
   const { getToken } = useAuth()
   const dispatch = useDispatch()
@@ -19,8 +20,10 @@ const ChatBox = () => {
   const [image, setImage] = useState(null)
   const [user, setUser] = useState(null)
   const [seen, setSeen] = useState(false)
+  const [isTyping, setIsTyping] = useState(false)
 
   const messagesEndRef = useRef(null)
+  const typingTimeoutRef = useRef(null)
 
   const connections = useSelector((state)=>state.connections.connections)
 
@@ -32,6 +35,17 @@ const ChatBox = () => {
     } catch (error) {
       toast.error(error.message)
     }
+  }
+
+  const handleTextChange = (e)=>{
+    settext(e.target.value)
+
+    getSocket().emit('typing:start', { to_user_id: userId })
+
+    if(typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+    typingTimeoutRef.current = setTimeout(()=>{
+      getSocket().emit('typing:stop', { to_user_id: userId })
+    }, 2000)
   }
 
 
@@ -55,6 +69,9 @@ const ChatBox = () => {
         if(ack.success){
           settext('')
           setImage(null)
+
+          if(typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
+          getSocket().emit('typing:stop', { to_user_id: userId })
         } else{
           toast.error(ack.message)
         }
@@ -71,6 +88,7 @@ const ChatBox = () => {
 
     return ()=>{
       dispatch(resetMessages())
+      if(typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current)
     }
   },[userId])
 
@@ -99,6 +117,22 @@ const ChatBox = () => {
   },[userId, dispatch])
 
   useEffect(()=>{
+    const socket = getSocket()
+
+    const handleTypingUpdate = (payload)=>{
+      if(payload.from_user_id === userId){
+        setIsTyping(payload.isTyping)
+      }
+    }
+
+    socket.on('typing:update', handleTypingUpdate)
+
+    return ()=>{
+      socket.off('typing:update', handleTypingUpdate)
+    }
+  },[userId])
+
+  useEffect(()=>{
     if(connections.length > 0){
       const user = connections.find(connection => connection._id === userId)
       setUser(user)
@@ -111,6 +145,7 @@ const ChatBox = () => {
 
   const sortedMessages = messages.toSorted((a,b)=> new Date(a.createdAt) - new Date(b.createdAt))
   const lastSentIndex = sortedMessages.reduce((last, m, i)=> m.to_user_id === user?._id ? i : last, -1)
+  const isOnline = onlineUserIds.includes(user?._id)
 
   return user && (
     <div className='flex flex-col h-screen'>
@@ -118,7 +153,11 @@ const ChatBox = () => {
         <img src={user.profile_picture} className='rounded-full size-8' alt="" />
         <div>
           <p className='font-medium'>{user.full_name}</p>
-          <p className='text-sm text-gray-500 -mt-1.5'>@{user.username}</p>
+          <div className='flex items-center gap-1.5 -mt-1.5'>
+            <p className='text-sm text-gray-500'>@{user.username}</p>
+            <span className={`size-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}></span>
+            <p className='text-xs text-gray-500'>{isOnline ? 'Online' : 'Offline'}</p>
+          </div>
         </div>
       </div>
 
@@ -145,8 +184,13 @@ const ChatBox = () => {
         </div>
       </div>
       <div className='px-4'>
+          {
+            isTyping && (
+              <p className='text-xs text-gray-400 italic mb-1 ml-2'>typing...</p>
+            )
+          }
           <div className='flex items-center gap-3 pl-5 p-1.5 bg-white w-full max-w-xl mx-auto border border-gray-200 shadow rounded-full mb-5'>
-            <input type="text" placeholder='Type a message...' onKeyDown={e=>e.key === 'Enter' && sendMessage()} onChange={(e)=>settext(e.target.value)} value={text} className='flex-1 outline-none text-slate-700' />
+            <input type="text" placeholder='Type a message...' onKeyDown={e=>e.key === 'Enter' && sendMessage()} onChange={handleTextChange} value={text} className='flex-1 outline-none text-slate-700' />
             <label htmlFor="image">
               {
                 image 

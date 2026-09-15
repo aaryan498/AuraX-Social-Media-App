@@ -17,6 +17,7 @@ import { assets } from './assets/assets'
 import { useDispatch } from 'react-redux'
 import { fetchUser } from './features/user/userSlice.js'
 import { fetchConnections } from './features/connections/connectionsSlice.js'
+import { setSnapshot, userOnline, userOffline } from './features/presence/presenceSlice.js'
 import Notification from './components/Notification.jsx'
 import { connectSocket, disconnectSocket, getSocket } from './socket/socket.js'
 
@@ -71,6 +72,23 @@ const App = () => {
     connectSocket(getToken)
     return ()=>{ disconnectSocket() }
   },[user])
+
+  useEffect(()=>{
+    if(!user) return
+
+    const socket = getSocket()
+
+    const handleSnapshot = ({ onlineUserIds }) => dispatch(setSnapshot(onlineUserIds))
+    const handlePresenceUpdate = ({ userId, status }) => dispatch(status === 'online' ? userOnline(userId) : userOffline(userId))
+
+    socket.on('presence:snapshot', handleSnapshot)
+    socket.on('presence:update', handlePresenceUpdate)
+
+    return ()=>{
+      socket.off('presence:snapshot', handleSnapshot)
+      socket.off('presence:update', handlePresenceUpdate)
+    }
+  },[user, dispatch])
   
 
 // useEffect(() => {
