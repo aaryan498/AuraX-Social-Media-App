@@ -1,6 +1,7 @@
 import Comment from '../models/commentModel.js'
 import Post from '../models/postModel.js'
 import { getIO } from '../socket/index.js'
+import { createAndEmitNotification } from '../utils/notificationHelper.js'
 
 export const addComment = async (req, res) => {
     try {
@@ -25,6 +26,8 @@ export const addComment = async (req, res) => {
             comment: populatedComment,
             comments_count: updatedPost.comments_count
         })
+
+        await createAndEmitNotification({ recipient: post.user, sender: userId, type: 'comment', post: postId, comment: comment._id })
 
         res.json({success: true, comment: populatedComment})
 

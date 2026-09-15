@@ -6,6 +6,7 @@ import Connection from "../models/connectionModel.js"
 import Post from "../models/postModel.js"
 import User from "../models/userModel.js"
 import fs from 'fs'
+import { createAndEmitNotification } from '../utils/notificationHelper.js'
 
 export const getUserData = async(req, res)=>{
     try {
@@ -153,6 +154,8 @@ export const followUsers = async(req, res)=>{
         toUser.followers.push(userId)
         await toUser.save()
 
+        await createAndEmitNotification({ recipient: id, sender: userId, type: 'follow' })
+
         res.json({success: true, message: "Now you are following this user"})
         
     } catch (error) {
@@ -221,6 +224,8 @@ export const sendConnectionRequest = async(req, res)=>{
                 data: {connectionId: newConnection._id}
             })
 
+            await createAndEmitNotification({ recipient: id, sender: userId, type: 'connection_request' })
+
             return res.json({success: true, message: 'Connection request sent successfully'})
         } else if(connection && connection.status === 'accepted'){
             return res.json({success: false, message: 'You are already connected with this user'})
@@ -283,6 +288,8 @@ export const acceptConnectionRequest = async(req, res)=>{
 
         connection.status = 'accepted';
         connection.save()
+
+        await createAndEmitNotification({ recipient: id, sender: userId, type: 'connection_accepted' })
 
         res.json({success: true, message: 'Connection Request accepted successfully'})
 

@@ -2,7 +2,8 @@ import fs from 'fs'
 import imagekit from '../configs/imagekit.js';
 import Post from '../models/postModel.js';
 import User from '../models/userModel.js';
-import { getIO } from '../socket/index.js'
+import { getIO, emitToUser } from '../socket/index.js'
+import { createAndEmitNotification } from '../utils/notificationHelper.js'
 
 // Add Post
 export const addPost = async(req, res)=>{
@@ -38,12 +39,22 @@ export const addPost = async(req, res)=>{
             )
         }
 
-        await Post.create({
+        const newPost = await Post.create({
             user: userId,
             content,
             image_urls,
             post_type
         })
+
+        const author = await User.findById(userId)
+        const populatedPost = await Post.findById(newPost._id).populate('user')
+        const audience = [...new Set([...author.followers, ...author.connections])].filter(id => id !== userId)
+
+        await Promise.all(audience.map(recipientId =>
+            createAndEmitNotification({ recipient: recipientId, sender: userId, type: 'new_post', post: newPost._id })
+        ))
+        audience.forEach(recipientId => emitToUser(recipientId, 'post:new', populatedPost))
+
         res.json({success: true, message: "Post Created successfully"})
         
     } catch (error) {
@@ -95,6 +106,7 @@ export const likePost = async(req, res)=>{
             post.likes_count.push(userId)
             await post.save()
             getIO().to(`post:${postId}`).emit('post:like-updated', { postId, likes_count: post.likes_count })
+            await createAndEmitNotification({ recipient: post.user, sender: userId, type: 'like', post: post._id })
             res.json({success: true, message: "Post Liked"})
         }
         

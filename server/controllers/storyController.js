@@ -4,6 +4,8 @@ import Story from '../models/storyModel.js'
 import User from '../models/userModel.js'
 import { useId } from 'react'
 import { inngest } from '../inngest/index.js'
+import { emitToUser } from '../socket/index.js'
+import { createAndEmitNotification } from '../utils/notificationHelper.js'
 
 // Add user story 
 export const addUserStory = async (req, res)=>{
@@ -47,6 +49,15 @@ export const addUserStory = async (req, res)=>{
             data: { storyId: story._id }
         })
 
+        const author = await User.findById(userId)
+        const populatedStory = await Story.findById(story._id).populate('user')
+        const audience = [...new Set([...author.followers, ...author.connections])].filter(id => id !== userId)
+
+        await Promise.all(audience.map(recipientId =>
+            createAndEmitNotification({ recipient: recipientId, sender: userId, type: 'new_story', story: story._id })
+        ))
+        audience.forEach(recipientId => emitToUser(recipientId, 'story:new', populatedStory))
+
         res.json({success: true, message: 'Story created successfully'})
         
     } catch (error) {
@@ -76,4 +87,31 @@ export const getStories = async (req, res)=>{
         res.json({success: false, message: error.message})
     }
 
+}
+
+
+// Mark a story as viewed by the current user
+export const markStoryViewed = async (req, res) => {
+    try {
+        const { userId } = req.auth()
+        const { storyId } = req.params
+
+        const story = await Story.findById(storyId)
+        if(!story){
+            return res.json({success: false, message: "Story not found"})
+        }
+        if(story.user === userId){
+            return res.json({success: true})
+        }
+        if(!story.views_count.includes(userId)){
+            story.views_count.push(userId)
+            await story.save()
+            await createAndEmitNotification({ recipient: story.user, sender: userId, type: 'story_view', story: story._id })
+        }
+
+        res.json({success: true})
+    } catch (error) {
+        console.log(error)
+        res.json({success: false, message: error.message})
+    }
 }
