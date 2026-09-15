@@ -1,5 +1,5 @@
 import { BadgeCheck, Heart, MessageCircle, Share2 } from 'lucide-react'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import moment from 'moment'
 import { dummyUserData } from '../assets/assets'
 import { useNavigate } from 'react-router-dom'
@@ -7,16 +7,45 @@ import { useSelector } from 'react-redux'
 import { useAuth } from '@clerk/clerk-react'
 import api from '../api/axios.js'
 import toast from 'react-hot-toast'
+import { getSocket } from '../socket/socket.js'
+import CommentsSection from './CommentsSection.jsx'
 
 const PostCard = ({post}) => {
 
     const navigate = useNavigate()
 
     const [likes, setLikes] = useState(post.likes_count || [])
+    const [commentsCount, setCommentsCount] = useState(post.comments_count || 0)
+    const [showComments, setShowComments] = useState(false)
     const currentUser = useSelector((state)=>state.user.value);
     const { getToken } = useAuth()
 
     const postWithHashtags = post.content.replace(/(#\w+)/g, '<span class="text-indigo-600">$1</span>')
+
+    useEffect(()=>{
+        const socket = getSocket()
+
+        socket.emit('post:join', post._id)
+
+        const handleLikeUpdate = (payload)=>{
+            if(payload.postId === post._id) setLikes(payload.likes_count)
+        }
+
+        const handleCommentsCountUpdate = (payload)=>{
+            if(payload.postId === post._id) setCommentsCount(payload.comments_count)
+        }
+
+        socket.on('post:like-updated', handleLikeUpdate)
+        socket.on('comment:new', handleCommentsCountUpdate)
+        socket.on('comment:deleted', handleCommentsCountUpdate)
+
+        return ()=>{
+            socket.emit('post:leave', post._id)
+            socket.off('post:like-updated', handleLikeUpdate)
+            socket.off('comment:new', handleCommentsCountUpdate)
+            socket.off('comment:deleted', handleCommentsCountUpdate)
+        }
+    },[post._id])
 
     const handleLike = async()=>{
 
@@ -25,13 +54,6 @@ const PostCard = ({post}) => {
             const { data } = await api.post('/api/post/like', {postId: post._id}, {headers: {Authorization: `Bearer ${await getToken()}`}})
             if(data.success){
                 toast.success(data.message)
-                setLikes(prev=>{
-                    if(prev.includes(currentUser._id)){
-                        return prev.filter(id=>id !== currentUser._id)
-                    } else{
-                        return [...prev, currentUser._id]
-                    }
-                })
             } else{
                 toast.error(data.message)
             }  
@@ -78,14 +100,17 @@ const PostCard = ({post}) => {
                 <span>{likes.length}</span>
             </div>
             <div className='flex items-center gap-1'>
-                <MessageCircle className='w-4 h-4'/>
-                <span></span>
+                <MessageCircle onClick={()=>setShowComments(prev=>!prev)} className='w-4 h-4 cursor-pointer'/>
+                <span>{commentsCount}</span>
             </div>
             <div className='flex items-center gap-1'>
                 <Share2 className='w-4 h-4'/>
                 <span></span>
             </div>
         </div>
+
+        {/* Comments */}
+        {showComments && <CommentsSection postId={post._id}/>}
         
     </div>
   )
