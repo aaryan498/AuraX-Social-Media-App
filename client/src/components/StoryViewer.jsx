@@ -1,9 +1,12 @@
 import { BadgeCheck, X } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
+import api from '../api/axios.js'
+import { useAuth } from '@clerk/clerk-react'
 
 const StoryViewer = ({viewStory, setviewStory}) => {
 
   const [progress, setprogress] = useState(0)
+  const { getToken } = useAuth()
 
   useEffect(()=>{
     let timer, progressInterval;
@@ -30,6 +33,20 @@ const StoryViewer = ({viewStory, setviewStory}) => {
     }
 
   },[viewStory, setviewStory])
+
+  useEffect(()=>{
+    if(!viewStory) return
+
+    const markViewed = async ()=>{
+      try {
+        await api.post(`/api/story/${viewStory._id}/view`, {}, {headers: {Authorization: `Bearer ${await getToken()}`}})
+      } catch (error) {
+        console.log(error)
+      }
+    }
+
+    markViewed()
+  },[viewStory])
 
 
   const handleClose = ()=>{

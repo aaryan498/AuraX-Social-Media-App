@@ -4,6 +4,7 @@ import messagesReducer from '../features/messages/messagesSlice.js'
 import connectionsReducer from '../features/connections/connectionsSlice.js'
 import presenceReducer from '../features/presence/presenceSlice.js'
 import callsReducer from '../features/calls/callsSlice.js'
+import notificationsReducer from '../features/notifications/notificationsSlice.js'
 
 export const store = configureStore({
     reducer: {
@@ -12,5 +13,6 @@ export const store = configureStore({
         connections: connectionsReducer,
         presence: presenceReducer,
         calls: callsReducer,
+        notifications: notificationsReducer,
     }
 })

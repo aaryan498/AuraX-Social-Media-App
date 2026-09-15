@@ -8,6 +8,7 @@ import Connections from './pages/Connections'
 import Discover from './pages/Discover'
 import Profile from './pages/Profile'
 import CreatePost from './pages/CreatePost'
+import Notifications from './pages/Notifications.jsx'
 import { useUser, useAuth } from '@clerk/clerk-react'
 import Layout from './pages/Layout'
 import toast, { Toaster } from 'react-hot-toast'
@@ -18,6 +19,7 @@ import { useDispatch } from 'react-redux'
 import { fetchUser } from './features/user/userSlice.js'
 import { fetchConnections } from './features/connections/connectionsSlice.js'
 import { setSnapshot, userOnline, userOffline } from './features/presence/presenceSlice.js'
+import { fetchNotifications, addNotification } from './features/notifications/notificationsSlice.js'
 import Notification from './components/Notification.jsx'
 import { connectSocket, disconnectSocket, getSocket } from './socket/socket.js'
 
@@ -36,6 +38,7 @@ const App = () => {
         const token = await getToken()
         dispatch(fetchUser(token))
         dispatch(fetchConnections(token))
+        dispatch(fetchNotifications(token))
       }
     }
     fetchData()
@@ -87,6 +90,20 @@ const App = () => {
     return ()=>{
       socket.off('presence:snapshot', handleSnapshot)
       socket.off('presence:update', handlePresenceUpdate)
+    }
+  },[user, dispatch])
+
+  useEffect(()=>{
+    if(!user) return
+
+    const socket = getSocket()
+
+    const handleNewNotification = (notification) => dispatch(addNotification(notification))
+
+    socket.on('notification:new', handleNewNotification)
+
+    return ()=>{
+      socket.off('notification:new', handleNewNotification)
     }
   },[user, dispatch])
   
@@ -210,6 +227,7 @@ const App = () => {
       <Routes>
         <Route path='/' element={ !user ? <Login/> : <Layout/>}>
           <Route index element={<Feed/>}/>
+          <Route path='notifications' element={<Notifications/>}/>
           <Route path='messages' element={<Messages/>}/>
           <Route path='messages/:userId' element={<ChatBox/>}/>
           <Route path='connections' element={<Connections/>}/>

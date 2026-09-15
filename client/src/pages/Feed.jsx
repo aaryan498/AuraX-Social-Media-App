@@ -7,6 +7,7 @@ import RecentMessages from '../components/RecentMessages'
 import { useAuth } from '@clerk/clerk-react'
 import toast from 'react-hot-toast'
 import api from '../api/axios.js'
+import { getSocket } from '../socket/socket.js'
 
 const Feed = () => {
 
@@ -36,6 +37,20 @@ const Feed = () => {
 
   useEffect(()=>{
     fetchFeeds()
+  },[])
+
+  useEffect(()=>{
+    const socket = getSocket()
+
+    const handleNewPost = (post) => {
+      setFeeds(prev => prev.some(p => p._id === post._id) ? prev : [post, ...prev])
+    }
+
+    socket.on('post:new', handleNewPost)
+
+    return ()=>{
+      socket.off('post:new', handleNewPost)
+    }
   },[])
 
   return !loading ? (

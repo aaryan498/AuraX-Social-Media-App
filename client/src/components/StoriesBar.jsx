@@ -6,6 +6,7 @@ import StoryModal from './StoryModal'
 import StoryViewer from './StoryViewer'
 import { useAuth } from '@clerk/clerk-react'
 import api from '../api/axios.js'
+import { getSocket } from '../socket/socket.js'
 
 const StoriesBar = () => {
 
@@ -32,6 +33,20 @@ const StoriesBar = () => {
 
     useEffect(()=>{
         fetchStories()
+    },[])
+
+    useEffect(()=>{
+        const socket = getSocket()
+
+        const handleNewStory = (story) => {
+            setstories(prev => prev.some(s => s._id === story._id) ? prev : [story, ...prev])
+        }
+
+        socket.on('story:new', handleNewStory)
+
+        return ()=>{
+            socket.off('story:new', handleNewStory)
+        }
     },[])
 
 
