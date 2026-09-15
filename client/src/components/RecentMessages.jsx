@@ -5,6 +5,7 @@ import moment from 'moment'
 import { useAuth, useUser } from '@clerk/clerk-react'
 import api from '../api/axios'
 import toast from 'react-hot-toast'
+import { getSocket } from '../socket/socket.js'
 
 const RecentMessages = () => {
 
@@ -44,10 +45,36 @@ const RecentMessages = () => {
     useEffect(()=>{
         if(user){
             fetchRecentMessages()
-            setInterval(fetchRecentMessages, 30000)
-            return ()=>{clearInterval()}
         }
     },[])
+
+    useEffect(()=>{
+        if(!user) return
+
+        const socket = getSocket()
+
+        const handleReceive = (message)=>{
+            if(message.to_user_id !== user.id) return
+
+            setMessages((prev)=>{
+                const groupedMessages = [...prev, message].reduce((acc, msg)=>{
+                    const senderId = msg.from_user_id._id;
+                    if(!acc[senderId] || new Date(msg.createdAt) > new Date(acc[senderId].createdAt)){
+                        acc[senderId] = msg
+                    }
+                    return acc;
+                }, {})
+
+                return Object.values(groupedMessages).sort((a, b)=> new Date(b.createdAt) - new Date(a.createdAt))
+            })
+        }
+
+        socket.on('message:receive', handleReceive)
+
+        return ()=>{
+            socket.off('message:receive', handleReceive)
+        }
+    },[user])
 
 
   return (

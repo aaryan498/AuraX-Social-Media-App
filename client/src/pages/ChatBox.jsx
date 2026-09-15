@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import api from '../api/axios'
 import { addMessages, fetchMessages, resetMessages } from '../features/messages/messagesSlice'
+import { getSocket } from '../socket/socket.js'
 import toast from 'react-hot-toast'
 
 const ChatBox = () => {
@@ -17,6 +18,7 @@ const ChatBox = () => {
   const [text, settext] = useState('')
   const [image, setImage] = useState(null)
   const [user, setUser] = useState(null)
+  const [seen, setSeen] = useState(false)
 
   const messagesEndRef = useRef(null)
 
@@ -25,8 +27,7 @@ const ChatBox = () => {
   const fetchUserMessages = async()=>{
     try {
 
-      const token = await getToken()
-      dispatch(fetchMessages({token, userId}))
+      dispatch(fetchMessages({ userId }))
       
     } catch (error) {
       toast.error(error.message)
@@ -39,21 +40,25 @@ const ChatBox = () => {
 
       if(!text && !image) return
 
-      const token = await getToken()
-      const formData = new FormData();
+      let media_url = ''
 
-      formData.append('to_user_id', userId)
-      formData.append('text', text)
-      image && formData.append('image', image)
+      if(image){
+        const formData = new FormData()
+        formData.append('image', image)
 
-      const { data } = await api.post('/api/message/send', formData, {headers: {Authorization: `Bearer ${token}`}})
-      if(data.success){
-        settext('')
-        setImage(null)
-        dispatch(addMessages(data.message))
-      } else{
-        throw new Error(data.message)
+        const { data } = await api.post('/api/message/upload-image', formData, {headers: {Authorization: `Bearer ${await getToken()}`}})
+        if(!data.success) throw new Error(data.message)
+        media_url = data.media_url
       }
+
+      getSocket().emit('message:send', {to_user_id: userId, text, media_url, message_type: image ? 'image' : 'text'}, (ack)=>{
+        if(ack.success){
+          settext('')
+          setImage(null)
+        } else{
+          toast.error(ack.message)
+        }
+      })
       
     } catch (error) {
       toast.error(error.message)
@@ -61,12 +66,37 @@ const ChatBox = () => {
   }
 
   useEffect(()=>{
+    setSeen(false)
     fetchUserMessages()
 
     return ()=>{
       dispatch(resetMessages())
     }
   },[userId])
+
+  useEffect(()=>{
+    const socket = getSocket()
+
+    const handleReceive = (message)=>{
+      if(message.from_user_id._id === userId || message.to_user_id === userId){
+        dispatch(addMessages(message))
+      }
+    }
+
+    const handleSeenUpdate = (payload)=>{
+      if(payload.by === userId){
+        setSeen(true)
+      }
+    }
+
+    socket.on('message:receive', handleReceive)
+    socket.on('message:seen-update', handleSeenUpdate)
+
+    return ()=>{
+      socket.off('message:receive', handleReceive)
+      socket.off('message:seen-update', handleSeenUpdate)
+    }
+  },[userId, dispatch])
 
   useEffect(()=>{
     if(connections.length > 0){
@@ -78,6 +108,9 @@ const ChatBox = () => {
   useEffect(()=>{
     messagesEndRef.current?.scrollIntoView({behaviour: "smooth"})
   },[messages])
+
+  const sortedMessages = messages.toSorted((a,b)=> new Date(a.createdAt) - new Date(b.createdAt))
+  const lastSentIndex = sortedMessages.reduce((last, m, i)=> m.to_user_id === user?._id ? i : last, -1)
 
   return user && (
     <div className='flex flex-col h-screen'>
@@ -92,7 +125,7 @@ const ChatBox = () => {
       <div className='p-5 md:px-10 h-full overflow-y-scroll'>
         <div className='space-y-4 max-w-4xl mx-auto'>
           {
-            messages.toSorted((a,b)=> new Date(a.createdAt) - new Date(b.createdAt)).map((message, index)=>(
+            sortedMessages.map((message, index)=>(
               <div key={index} className={`flex flex-col ${message.to_user_id !== user._id ? 'items-start' : 'items-end'}`}>
                 <div className={`p-2 text-sm max-w-sm bg-white text-slate-700 rounded-lg shadow ${message.to_user_id !== user._id ? 'rounded-bl-none' : 'rounded-br-none'}`}>
                   {
@@ -100,6 +133,11 @@ const ChatBox = () => {
                   }
                   <p>{message.text}</p>
                 </div>
+                {
+                  index === lastSentIndex && seen && (
+                    <p className='text-xs text-gray-400 mt-1'>Seen</p>
+                  )
+                }
               </div>
             ))
           }

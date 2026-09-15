@@ -17,9 +17,8 @@ import { assets } from './assets/assets'
 import { useDispatch } from 'react-redux'
 import { fetchUser } from './features/user/userSlice.js'
 import { fetchConnections } from './features/connections/connectionsSlice.js'
-import { addMessages } from './features/messages/messagesSlice.js'
 import Notification from './components/Notification.jsx'
-import { connectSocket, disconnectSocket } from './socket/socket.js'
+import { connectSocket, disconnectSocket, getSocket } from './socket/socket.js'
 
 const App = () => {
   
@@ -47,22 +46,23 @@ const App = () => {
   },[pathname])
 
   useEffect(()=>{
-    if(user){
-      const eventSource = new EventSource(import.meta.env.VITE_BASE_URL + '/api/message/' + user.id)
+    if(!user) return
 
-      eventSource.onmessage = (event)=>{
-        const message = JSON.parse(event.data)
-        if(pathnameRef.current === ('/messages/' + message.from_user_id._id)){
-          dispatch(addMessages(message))
-        } else{
-            toast.custom((t)=>(
-              <Notification t={t} message={message}/>
-            ), {position: "bottom-right"})
+    const socket = getSocket()
+
+    const handler = (message) => {
+        if(message.from_user_id._id === user.id) return // my own message, synced to my other devices — never toast about your own send
+        const otherPartyId = message.from_user_id._id
+        if(pathnameRef.current !== ('/messages/' + otherPartyId)){
+            toast.custom((t) => (<Notification t={t} message={message}/>), {position: "bottom-right"})
         }
-      }
-      return ()=>{
-        eventSource.close()
-      }
+        // if the user IS currently viewing this exact chat, do nothing here — ChatBox.jsx's own listener already adds it to the messages list; dispatching addMessages here too would double-add it
+    }
+
+    socket.on('message:receive', handler)
+
+    return ()=>{
+      socket.off('message:receive', handler)
     }
   },[user, dispatch])
 

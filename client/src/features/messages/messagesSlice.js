@@ -1,14 +1,17 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
-import api from '../../api/axios'
+import { getSocket } from '../../socket/socket.js'
 
 
 const initialState = {
     messages: [],
 }
 
-export const fetchMessages = createAsyncThunk('messages/fetchMessages', async({token, userId})=>{
-    const { data } = await api.post('/api/message/get', {to_user_id: userId}, {headers: {Authorization: `Bearer ${token}`}})
-    return data.success ? data : null
+export const fetchMessages = createAsyncThunk('messages/fetchMessages', async({ userId })=>{
+    return new Promise((resolve) => {
+        getSocket().emit('message:fetch', { to_user_id: userId }, (ack) => {
+            resolve(ack.success ? ack : null)
+        })
+    })
 })
 
 const messagesSlice = createSlice({

@@ -1,5 +1,6 @@
 import { Server } from 'socket.io'
 import { clerkClient } from '@clerk/express'
+import { registerChatHandlers } from './chatHandlers.js'
 
 let io = null
 
@@ -36,7 +37,7 @@ export const initSocket = (httpServer) => {
             console.log('Socket disconnected:', socket.userId, socket.id)
         })
 
-        // Future phases will register additional handlers here, e.g. registerChatHandlers(io, socket)
+        registerChatHandlers(io, socket)
     })
 
     return io
