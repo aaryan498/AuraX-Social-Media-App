@@ -68,6 +68,9 @@ export const initSocket = (httpServer) => {
 
         registerChatHandlers(io, socket)
         registerCallHandlers(io, socket)
+
+        socket.on('post:join', (postId) => { socket.join(`post:${postId}`) })
+        socket.on('post:leave', (postId) => { socket.leave(`post:${postId}`) })
     })
 
     return io

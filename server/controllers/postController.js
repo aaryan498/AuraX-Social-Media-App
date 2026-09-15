@@ -2,6 +2,7 @@ import fs from 'fs'
 import imagekit from '../configs/imagekit.js';
 import Post from '../models/postModel.js';
 import User from '../models/userModel.js';
+import { getIO } from '../socket/index.js'
 
 // Add Post
 export const addPost = async(req, res)=>{
@@ -88,10 +89,12 @@ export const likePost = async(req, res)=>{
         if(post.likes_count.includes(userId)){
             post.likes_count = post.likes_count.filter(user => user !== userId)
             await post.save()
+            getIO().to(`post:${postId}`).emit('post:like-updated', { postId, likes_count: post.likes_count })
             res.json({success: true, message: "Post Unliked"})
         } else{
             post.likes_count.push(userId)
             await post.save()
+            getIO().to(`post:${postId}`).emit('post:like-updated', { postId, likes_count: post.likes_count })
             res.json({success: true, message: "Post Liked"})
         }
         
