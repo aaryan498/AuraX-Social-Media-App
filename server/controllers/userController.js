@@ -315,3 +315,24 @@ export const getUserProfiles = async(req, res)=>{
     }
 
 }
+
+
+// Get ICE Servers (STUN always, TURN when configured) — used by the client to set up WebRTC peer connections
+export const getIceServers = async (req, res) => {
+    try {
+        const iceServers = [{ urls: 'stun:stun.l.google.com:19302' }]
+
+        if(process.env.TURN_URL && process.env.TURN_USERNAME && process.env.TURN_CREDENTIAL){
+            iceServers.push({
+                urls: process.env.TURN_URL.includes(',') ? process.env.TURN_URL.split(',') : process.env.TURN_URL,
+                username: process.env.TURN_USERNAME,
+                credential: process.env.TURN_CREDENTIAL,
+            })
+        }
+
+        res.json({success: true, iceServers})
+    } catch (error) {
+        console.log(error)
+        res.json({success: false, message: error.message})
+    }
+}

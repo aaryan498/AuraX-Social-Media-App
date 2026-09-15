@@ -16,6 +16,10 @@ const app = express()
 const httpServer = http.createServer(app)
 await connectDB()
 
+if(!process.env.TURN_URL || !process.env.TURN_USERNAME || !process.env.TURN_CREDENTIAL){
+    console.log("⚠️  WARNING: TURN_URL/TURN_USERNAME/TURN_CREDENTIAL are not fully set. Calls will be unreliable across restrictive networks without a TURN server.")
+}
+
 app.use(express.json())
 app.use(cors())
 app.use(clerkMiddleware())

@@ -1,6 +1,7 @@
 import { Server } from 'socket.io'
 import { clerkClient } from '@clerk/express'
 import { registerChatHandlers } from './chatHandlers.js'
+import { registerCallHandlers } from './callHandlers.js'
 import User from '../models/userModel.js'
 
 let io = null
@@ -66,6 +67,7 @@ export const initSocket = (httpServer) => {
         })
 
         registerChatHandlers(io, socket)
+        registerCallHandlers(io, socket)
     })
 
     return io
