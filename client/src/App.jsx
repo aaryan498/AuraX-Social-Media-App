@@ -19,6 +19,7 @@ import { fetchUser } from './features/user/userSlice.js'
 import { fetchConnections } from './features/connections/connectionsSlice.js'
 import { addMessages } from './features/messages/messagesSlice.js'
 import Notification from './components/Notification.jsx'
+import { connectSocket, disconnectSocket } from './socket/socket.js'
 
 const App = () => {
   
@@ -64,6 +65,12 @@ const App = () => {
       }
     }
   },[user, dispatch])
+
+  useEffect(()=>{
+    if(!user) return
+    connectSocket(getToken)
+    return ()=>{ disconnectSocket() }
+  },[user])
   
 
 // useEffect(() => {
