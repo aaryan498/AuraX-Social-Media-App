@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { dummyMessagesData, dummyUserData } from '../assets/assets'
-import { ImageIcon, SendHorizonal } from 'lucide-react'
+import { ImageIcon, SendHorizonal, Phone, Video } from 'lucide-react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
@@ -8,6 +8,8 @@ import api from '../api/axios'
 import { addMessages, fetchMessages, resetMessages } from '../features/messages/messagesSlice'
 import { getSocket } from '../socket/socket.js'
 import toast from 'react-hot-toast'
+import { startOutgoingCall, setCallId, resetCall } from '../features/calls/callsSlice.js'
+import { getLocalMedia } from '../webrtc/webrtcClient.js'
 
 const ChatBox = () => {
 
@@ -79,6 +81,23 @@ const ChatBox = () => {
       
     } catch (error) {
       toast.error(error.message)
+    }
+  }
+
+  const startCall = async (call_type) => {
+    try {
+      await getLocalMedia(call_type)
+      dispatch(startOutgoingCall({ remoteUser: user, callType: call_type }))
+      getSocket().emit('call:invite', { to_user_id: userId, call_type }, (ack) => {
+        if(ack.success){
+          dispatch(setCallId(ack.callId))
+        } else {
+          toast.error(ack.message)
+          dispatch(resetCall())
+        }
+      })
+    } catch (error) {
+      toast.error("Camera/microphone permission is required to start a call")
     }
   }
 
@@ -158,6 +177,15 @@ const ChatBox = () => {
             <span className={`size-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-gray-400'}`}></span>
             <p className='text-xs text-gray-500'>{isOnline ? 'Online' : 'Offline'}</p>
           </div>
+        </div>
+
+        <div className='flex items-center gap-2 ml-auto'>
+          <button onClick={()=>startCall('audio')} className='w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border border-gray-300 text-slate-500 rounded-md hover:bg-white active:scale-95 transition cursor-pointer'>
+            <Phone className='w-4 h-4 sm:w-5 sm:h-5'/>
+          </button>
+          <button onClick={()=>startCall('video')} className='w-9 h-9 sm:w-10 sm:h-10 flex items-center justify-center border border-gray-300 text-slate-500 rounded-md hover:bg-white active:scale-95 transition cursor-pointer'>
+            <Video className='w-4 h-4 sm:w-5 sm:h-5'/>
+          </button>
         </div>
       </div>
 
