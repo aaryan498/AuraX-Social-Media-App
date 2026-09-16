@@ -41,6 +41,7 @@ const Feed = () => {
 
   useEffect(()=>{
     const socket = getSocket()
+    if(!socket) return;
 
     const handleNewPost = (post) => {
       setFeeds(prev => prev.some(p => p._id === post._id) ? prev : [post, ...prev])

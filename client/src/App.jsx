@@ -53,6 +53,7 @@ const App = () => {
     if(!user) return
 
     const socket = getSocket()
+    if(!socket) return;
 
     const handler = (message) => {
         if(message.from_user_id._id === user.id) return // my own message, synced to my other devices — never toast about your own send
@@ -80,6 +81,7 @@ const App = () => {
     if(!user) return
 
     const socket = getSocket()
+    if(!socket) return;
 
     const handleSnapshot = ({ onlineUserIds }) => dispatch(setSnapshot(onlineUserIds))
     const handlePresenceUpdate = ({ userId, status }) => dispatch(status === 'online' ? userOnline(userId) : userOffline(userId))
@@ -97,6 +99,7 @@ const App = () => {
     if(!user) return
 
     const socket = getSocket()
+    if(!socket) return;
 
     const handleNewNotification = (notification) => dispatch(addNotification(notification))
 

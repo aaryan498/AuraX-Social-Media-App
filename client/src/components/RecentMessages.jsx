@@ -52,6 +52,7 @@ const RecentMessages = () => {
         if(!user) return
 
         const socket = getSocket()
+    if(!socket) return;
 
         const handleReceive = (message)=>{
             if(message.to_user_id !== user.id) return

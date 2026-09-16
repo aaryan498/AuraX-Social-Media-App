@@ -37,6 +37,7 @@ const StoriesBar = () => {
 
     useEffect(()=>{
         const socket = getSocket()
+    if(!socket) return;
 
         const handleNewStory = (story) => {
             setstories(prev => prev.some(s => s._id === story._id) ? prev : [story, ...prev])

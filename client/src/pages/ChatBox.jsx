@@ -113,6 +113,7 @@ const ChatBox = () => {
 
   useEffect(()=>{
     const socket = getSocket()
+    if(!socket) return;
 
     const handleReceive = (message)=>{
       if(message.from_user_id._id === userId || message.to_user_id === userId){
@@ -137,6 +138,7 @@ const ChatBox = () => {
 
   useEffect(()=>{
     const socket = getSocket()
+    if(!socket) return;
 
     const handleTypingUpdate = (payload)=>{
       if(payload.from_user_id === userId){

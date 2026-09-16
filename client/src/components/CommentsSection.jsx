@@ -39,6 +39,7 @@ const CommentsSection = ({ postId }) => {
         fetchComments()
 
         const socket = getSocket()
+    if(!socket) return;
 
         const handleNewComment = (payload)=>{
             if(payload.postId !== postId) return

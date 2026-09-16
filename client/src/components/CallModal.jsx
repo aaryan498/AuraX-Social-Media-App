@@ -60,6 +60,7 @@ const CallModal = () => {
   // ---- All call:* socket listeners — registered once, never torn down while logged in ----
   useEffect(() => {
     const socket = getSocket()
+    if(!socket) return;
 
     const sameCall = (payload) => !callRef.current.callId || payload.callId === callRef.current.callId
 

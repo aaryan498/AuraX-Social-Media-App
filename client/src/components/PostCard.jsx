@@ -24,6 +24,7 @@ const PostCard = ({post}) => {
 
     useEffect(()=>{
         const socket = getSocket()
+    if(!socket) return;
 
         socket.emit('post:join', post._id)
 
