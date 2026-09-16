@@ -23,9 +23,4 @@ export const disconnectSocket = () => {
     }
 }
 
-export const getSocket = () => {
-    if(!socket){
-        throw new Error('Socket not initialized. Ensure connectSocket() has been called before using getSocket().')
-    }
-    return socket
-}
+export const getSocket = () => socket

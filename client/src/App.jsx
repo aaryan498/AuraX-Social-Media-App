@@ -49,66 +49,36 @@ const App = () => {
     pathnameRef.current = pathname
   },[pathname])
 
-  useEffect(()=>{
+  useEffect(() => {
     if(!user) return
 
-    const socket = getSocket()
-    if(!socket) return;
+    const socket = connectSocket(getToken)
 
-    const handler = (message) => {
-        if(message.from_user_id._id === user.id) return // my own message, synced to my other devices — never toast about your own send
+    const handleMessage = (message) => {
+        if(message.from_user_id._id === user.id) return
         const otherPartyId = message.from_user_id._id
         if(pathnameRef.current !== ('/messages/' + otherPartyId)){
             toast.custom((t) => (<Notification t={t} message={message}/>), {position: "bottom-right"})
         }
-        // if the user IS currently viewing this exact chat, do nothing here — ChatBox.jsx's own listener already adds it to the messages list; dispatching addMessages here too would double-add it
     }
-
-    socket.on('message:receive', handler)
-
-    return ()=>{
-      socket.off('message:receive', handler)
-    }
-  },[user, dispatch])
-
-  useEffect(()=>{
-    if(!user) return
-    connectSocket(getToken)
-    return ()=>{ disconnectSocket() }
-  },[user])
-
-  useEffect(()=>{
-    if(!user) return
-
-    const socket = getSocket()
-    if(!socket) return;
 
     const handleSnapshot = ({ onlineUserIds }) => dispatch(setSnapshot(onlineUserIds))
     const handlePresenceUpdate = ({ userId, status }) => dispatch(status === 'online' ? userOnline(userId) : userOffline(userId))
-
-    socket.on('presence:snapshot', handleSnapshot)
-    socket.on('presence:update', handlePresenceUpdate)
-
-    return ()=>{
-      socket.off('presence:snapshot', handleSnapshot)
-      socket.off('presence:update', handlePresenceUpdate)
-    }
-  },[user, dispatch])
-
-  useEffect(()=>{
-    if(!user) return
-
-    const socket = getSocket()
-    if(!socket) return;
-
     const handleNewNotification = (notification) => dispatch(addNotification(notification))
 
+    socket.on('message:receive', handleMessage)
+    socket.on('presence:snapshot', handleSnapshot)
+    socket.on('presence:update', handlePresenceUpdate)
     socket.on('notification:new', handleNewNotification)
 
-    return ()=>{
-      socket.off('notification:new', handleNewNotification)
+    return () => {
+        socket.off('message:receive', handleMessage)
+        socket.off('presence:snapshot', handleSnapshot)
+        socket.off('presence:update', handlePresenceUpdate)
+        socket.off('notification:new', handleNewNotification)
+        disconnectSocket()
     }
-  },[user, dispatch])
+}, [user])
   
 
 // useEffect(() => {
